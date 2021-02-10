@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\BaseController as BaseController;
+use App\Models\Files;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\Files as FilesResource;
 
-class FilesController extends Controller
+class FilesController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -14,19 +17,10 @@ class FilesController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $files = Files::all();
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return $this->sendResponse(FilesResource::collection($files), 'Files retrieved successfully.');
     }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -35,7 +29,20 @@ class FilesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'name' => 'required',
+            'detail' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $files = Files::create($input);
+
+        return $this->sendResponse(new FilesResource($files), 'Files created successfully.');
     }
 
     /**
@@ -46,18 +53,13 @@ class FilesController extends Controller
      */
     public function show($id)
     {
-        //
-    }
+        $files = Files::find($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        if (is_null($files)) {
+            return $this->sendError('Files not found.');
+        }
+
+        return $this->sendResponse(new FilesResource($files), 'Files retrieved successfully.');
     }
 
     /**
@@ -67,9 +69,24 @@ class FilesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Files $files)
     {
-        //
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'name' => 'required',
+            'detail' => 'required'
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $files->name = $input['name'];
+        $files->detail = $input['detail'];
+        $files->save();
+
+        return $this->sendResponse(new FilesResource($files), 'Files updated successfully.');
     }
 
     /**
@@ -78,8 +95,10 @@ class FilesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Files $files)
     {
-        //
+        $files->delete();
+
+        return $this->sendResponse([], 'Files deleted successfully.');
     }
 }
