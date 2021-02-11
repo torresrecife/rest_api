@@ -17,7 +17,10 @@ class Files extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'detail' => $this->detail,
+            'type' => $this->type,
+            'description' => $this->description,
+            'user_id' => $this->user_id,
+            'content' => $this->content,
             'created_at' => $this->created_at->format('d/m/Y'),
             'updated_at' => $this->updated_at->format('d/m/Y'),
         ];

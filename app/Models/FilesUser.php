@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Files extends Model
+class FilesUser extends Model
 {
     use HasFactory;
 
@@ -14,7 +14,9 @@ class Files extends Model
      *
      * @var array
      */
+    protected $table = 'files_user';
+
     protected $fillable = [
-        'name', 'type', 'description'
+        'file_id', 'user_id'
     ];
 }

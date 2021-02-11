@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Models\FilesContent;
+use App\Models\FilesUser;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Hashing\BcryptHasher;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController as BaseController;
 use App\Models\Files;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Files as FilesResource;
 
@@ -17,9 +23,28 @@ class FilesController extends BaseController
      */
     public function index()
     {
-        $files = Files::all();
+        $user = Auth::user();
 
-        return $this->sendResponse(FilesResource::collection($files), 'Files retrieved successfully.');
+        $files = Files::query();
+        $files->addSelect([
+            'files.id',
+            'files.name',
+            'files.type',
+            'files.description',
+            'files_user.user_id',
+            'files_content.content',
+            'files.created_at',
+            'files.updated_at'
+        ]);
+        $files->join('files_user','files_user.file_id','=','files.id');
+        $files->join('files_content','files_content.file_id','=','files.id');
+
+        //if the user does not have admin permission, they can only see their own files.
+        if(empty($user->hasRole('admin'))){
+            $files->where('files_user.user_id',$user->id);
+        }
+
+        return $this->sendResponse(FilesResource::collection($files->get()), 'Files retrieved successfully.');
     }
     /**
      * Store a newly created resource in storage.
@@ -30,17 +55,57 @@ class FilesController extends BaseController
     public function store(Request $request)
     {
         $input = $request->all();
+        $user = Auth::user();
 
         $validator = Validator::make($input, [
             'name' => 'required',
-            'detail' => 'required'
+            'type' => 'required',
+            'content' => 'required|max:2048'
         ]);
 
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $files = Files::create($input);
+        $argsFiles = [
+            'name' => $input['name'],
+            'type' => $input['type'],
+            'description' => $input['description']
+        ];
+
+        try {
+            $error = null;
+            $files = Files::create($argsFiles);
+        } catch (\Exception $exception) {
+            error_log(json_encode($exception));
+            $error = ['exception' => $exception->getMessage()];
+            $files = null;
+        }
+
+        if (empty($files)){
+            $error = $error ?: ['unknown' => 'Error when saving this new file'];
+            return $this->sendError('Insert Error.', $error);
+
+        }else{
+
+            //insert files_user table
+            $argsUser = [
+                'file_id' => $files->id,
+                'user_id' => $user->id
+            ];
+
+            $filesUser = FilesUser::create($argsUser);
+            $files->user_id = $filesUser->user_id;  //include in resource files
+
+            //insert files_content table
+            $argsFilesContent = [
+                'file_id' => $files->id,
+                'content' => Bcrypt($input['content'])
+            ];
+
+            $filesContent = FilesContent::create($argsFilesContent);
+            $files->content = $filesContent->content; //include in resource files
+        }
 
         return $this->sendResponse(new FilesResource($files), 'Files created successfully.');
     }
@@ -75,7 +140,7 @@ class FilesController extends BaseController
 
         $validator = Validator::make($input, [
             'name' => 'required',
-            'detail' => 'required'
+            'description' => 'required'
         ]);
 
         if($validator->fails()){
@@ -83,7 +148,7 @@ class FilesController extends BaseController
         }
 
         $files->name = $input['name'];
-        $files->detail = $input['detail'];
+        $files->description = $input['description'];
         $files->save();
 
         return $this->sendResponse(new FilesResource($files), 'Files updated successfully.');
