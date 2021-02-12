@@ -74,11 +74,10 @@ class FilesController extends BaseController
         $argsFiles = [
             'name' => $input['name'],
             'description' => $input['description'],
-            'filename' => $fileSize,
+            'filename' => $fileName,
+            'filesize' => $fileSize,
             'type' => $fileType
         ];
-
-
 
         try {
             $error = null;

@@ -18,6 +18,7 @@ class CreateFilesTable extends Migration
             $table->string('name',500);
             $table->text('description');
             $table->string('filename', 500)->nullable();
+            $table->string('filesize', 50)->nullable();
             $table->string('type',200)->nullable();
             $table->timestamps();
         });
