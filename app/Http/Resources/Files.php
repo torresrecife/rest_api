@@ -17,10 +17,11 @@ class Files extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'filename' => $this->filename,
             'type' => $this->type,
             'description' => $this->description,
             'user_id' => $this->user_id,
-            'content' => $this->content,
+            'content' => (substr($this->content, 0, 500) . '...'), //limits the display characters
             'created_at' => $this->created_at->format('d/m/Y'),
             'updated_at' => $this->updated_at->format('d/m/Y'),
         ];

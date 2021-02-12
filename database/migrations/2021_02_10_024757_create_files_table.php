@@ -16,8 +16,9 @@ class CreateFilesTable extends Migration
         Schema::create('files', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name',500);
-            $table->enum('type',['PDF','IMG']);
             $table->text('description');
+            $table->string('filename', 500)->nullable();
+            $table->string('type',200)->nullable();
             $table->timestamps();
         });
     }

@@ -13,6 +13,7 @@ use App\Models\Files;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Files as FilesResource;
+use Illuminate\Support\Facades\Response;
 
 class FilesController extends BaseController
 {
@@ -59,18 +60,21 @@ class FilesController extends BaseController
 
         $validator = Validator::make($input, [
             'name' => 'required',
-            'type' => 'required',
-            'content' => 'required|max:2048'
+            'content' => 'required|mimes:pdf|max:10000'
         ]);
 
         if($validator->fails()){
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
+        //get the original file name
+        $fileName = $request->file('content')->getClientOriginalName();
+        $fileType = $request->file('content')->getClientMimeType();
         $argsFiles = [
             'name' => $input['name'],
-            'type' => $input['type'],
-            'description' => $input['description']
+            'description' => $input['description'],
+            'filename' => $fileName,
+            'type' => $fileType
         ];
 
         try {
@@ -97,10 +101,13 @@ class FilesController extends BaseController
             $filesUser = FilesUser::create($argsUser);
             $files->user_id = $filesUser->user_id;  //include in resource files
 
-            //insert files_content table
+            //converts to base64_encode and insert files_content table
+            $fileContent = $request->file('content')->getContent();
+            $fileBase64 = base64_encode($fileContent);
+
             $argsFilesContent = [
                 'file_id' => $files->id,
-                'content' => Bcrypt($input['content'])
+                'content' => $fileBase64
             ];
 
             $filesContent = FilesContent::create($argsFilesContent);
