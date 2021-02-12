@@ -70,12 +70,15 @@ class FilesController extends BaseController
         //get the original file name
         $fileName = $request->file('content')->getClientOriginalName();
         $fileType = $request->file('content')->getClientMimeType();
+        $fileSize = $request->file('content')->getMaxFilesize();
         $argsFiles = [
             'name' => $input['name'],
             'description' => $input['description'],
-            'filename' => $fileName,
+            'filename' => $fileSize,
             'type' => $fileType
         ];
+
+
 
         try {
             $error = null;

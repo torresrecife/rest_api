@@ -1,62 +1,141 @@
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+<p align="center"><h2>Rest API</h2></p>
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Using Laravel 8 With Passport and Laratrust
 
-## About Laravel
+This is a Rest API application for saving and retrieving PDF files directly into the database Mysql, encoding them with PHP's native [base64](https://www.php.net/manual/en/function.base64-encode.php) function. Using access permissions with [Laravel Laratrust](https://github.com/santigarcor/laratrust) and authentication with [Laravel Passport](https://laravel.com/docs/8.x/passport) for users.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Installation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- System requirements
+```
+- PHP >= 7.3
+- Composer
+- Mysql
+```
+- Clone the repository
+```
+$ git clone https://github.com/torresrecife/rest_api.git
+$ cd rest_api
+$ cp .env.example .env
+```
+- Open the .env file and configure the mysql database, inserting the data of the parameters below
+```
+DB_CONNECTION=mysql
+DB_HOST=
+DB_PORT=3306
+DB_DATABASE=
+DB_USERNAME=
+DB_PASSWORD=
+```  
+- Run the commands below
+```
+$ composer update
+$ php artisan vendor:publish --tag="laratrust"
+$ php artisan migrate
+$ php artisan db:seed
+$ php artisan key:generate
+```
+- IMPORTANT: Before executing the command below, you can change the values according to your needs, in the file config/laratrust.php.
+```
+$ php artisan passport:install
+```
+- After the installation is complete, the "seed" will have created two sample users in the database. The access data are:
+```
+User: Admin
+Email: admin@test.com
+Password: 123456
+Permission: admin
+```
+```
+User: User
+Email: user@test.com
+Password: 123456
+Permission: user
+```
+- Starting the server:
+```
+$ php artisan serve --port=80
+```
+## Manipulate PDF files
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Both users can insert files, only in .pdf format, in the database. However, the permissions granted to users are:
 
-## Learning Laravel
+- 'User' : he can only see his own files.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- 'Admin' : he will be able to see all the files.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Running Tests using Postman
 
-## Laravel Sponsors
+- User login:
+```
+Postman configuration: 
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+    link: http://loaclhost/api/login -> POST 
+    Body -> form-data:
+     - Key: email 
+     - Value: user@test.com
+     
+     - Key: password 
+     - Value: 123456
+```
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/login-user.jpg">
 
-### Premium Partners
+- PDF insertion:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/)**
-- **[OP.GG](https://op.gg)**
+```
+Postman configuration:
 
-## Contributing
+    link: http://loaclhost/api/files -> POST
+     
+    Header:
+     - Key: Accept
+     - Value: application/json
+     
+     - Key: Authorization
+     - Value: "obtained token"
+    
+    Body -> form-data:
+     - Key: name
+     - Value: "Choose a name for the file"
+     
+     - Key: description
+     - Value: "Choose a brief description for the file"
+     
+     - Key: content
+     - Value: "change the field to 'file' and locate the .pdf file on your computer".
+```
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/insert-pdf-user.jpg">
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- PDF view:
 
-## Code of Conduct
+```
+Postman configuration:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+    link: http://loaclhost/api/files -> GET
+    
+    Header:
+     - Key: Accept
+     - Value: application/json
+     
+     - Key: Authorization
+     - Value: "obtained token"
+```
+<h6>Attention: A character limiter has been inserted in the output of the "content" of the file data, for better visualization in Postman.
+It should be removed from the file: app/Http/Resources/Files.php: line 24</h6>
 
-## Security Vulnerabilities
+View user:
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-user.jpg">
+View admin:
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-admin.jpg">
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Packages used
+ - Laravel 8:
+   
+    https://laravel.com/docs/8.x
+ - Laravel Laratrust:
+   
+    https://github.com/santigarcor/laratrust
+ - Laravel Passport:
+   
+   https://laravel.com/docs/8.x/passport.
