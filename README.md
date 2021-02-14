@@ -79,7 +79,7 @@ Postman configuration:
      - Key: password 
      - Value: 123456
 ```
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/login-user.jpg">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/login-user-v2.jpg">
 
 ### PDF insertion:
 
@@ -108,7 +108,7 @@ Postman configuration:
      - Key: password
      - Value: "enter a password for the pdf".
 ```
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/insert-pdf-user.jpg">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/insert-pdf-user-v2.jpg">
 
 ### PDF view list:
 
@@ -132,11 +132,11 @@ Note that at that moment only information about the file will be displayed. The 
 
 #### View user:
 
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-user.jpg">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-user-v2.jpg">
 
 #### View admin:
 
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-admin.jpg    ">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-admin-v2.jpg    ">
 
 ### PDF view detail:
 
@@ -147,11 +147,11 @@ Note that at that moment only information about the file will be displayed. The 
 <h6>Attention: A character limiter has been inserted in the output of the "content" of the file data, for better visualization in Postman.
 It should be removed from the file: app/Http/Resources/Files.php: line 24</h6>
 
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/viewing-allowed-password-user.jpg">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/viewing-allowed-password-user-v2.jpg">
 
 - If the user tries to view another file that does not have permission, even if he has the password, the file will not be displayed.
 
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/blocked-view-password-user.jpg">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/blocked-view-password-user-v2.jpg">
 
 ## Packages used
  - Laravel 8:
