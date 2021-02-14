@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController as BaseController;
 use App\Models\Files;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Resources\Files as FilesResource;
 use Illuminate\Support\Facades\Response;
@@ -60,7 +61,8 @@ class FilesController extends BaseController
 
         $validator = Validator::make($input, [
             'name' => 'required',
-            'content' => 'required|mimes:pdf|max:10000'
+            'content' => 'required|mimes:pdf|max:10000',
+            'password' => 'required',
         ]);
 
         if($validator->fails()){
@@ -71,12 +73,14 @@ class FilesController extends BaseController
         $fileName = $request->file('content')->getClientOriginalName();
         $fileType = $request->file('content')->getClientMimeType();
         $fileSize = $request->file('content')->getMaxFilesize();
+
         $argsFiles = [
             'name' => $input['name'],
             'description' => $input['description'],
             'filename' => $fileName,
             'filesize' => $fileSize,
-            'type' => $fileType
+            'type'     => $fileType,
+            'password' => bcrypt($input['password'])
         ];
 
         try {
@@ -131,6 +135,21 @@ class FilesController extends BaseController
 
         if (is_null($files)) {
             return $this->sendError('Files not found.');
+        }
+
+        return $this->sendResponse(new FilesResource($files), 'Files retrieved successfully.');
+    }
+
+    public function details($id, $pwd)
+    {
+        $files = Files::find($id);
+
+        if (is_null($files)) {
+            return $this->sendError('Files not found.');
+        }
+
+        if (Hash::check($pwd, $files->password)){
+            return $this->sendError('The file password does not match.');
         }
 
         return $this->sendResponse(new FilesResource($files), 'Files retrieved successfully.');

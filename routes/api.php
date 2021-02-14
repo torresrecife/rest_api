@@ -25,4 +25,11 @@ Route::post('login', [RegisterController::class, 'login']);
 
 Route::middleware('auth:api')->group( function () {
     Route::resource('files', FilesController::class);
+
+    Route::get('files/{id}/{data}',
+        function(Request $request, $id, $data){
+            $controller = app()->make(FilesController::class, array($request));
+            return $controller->callAction('details', array($id,$data));
+        })
+        ->name('files');
 });
