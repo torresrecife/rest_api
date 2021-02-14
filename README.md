@@ -136,7 +136,7 @@ Note that at that moment only information about the file will be displayed. The 
 
 #### View admin:
 
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-admin-v2.jpg    ">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-admin-v2.jpg">
 
 ### PDF view detail:
 
