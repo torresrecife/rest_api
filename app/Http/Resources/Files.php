@@ -14,17 +14,22 @@ class Files extends JsonResource
      */
     public function toArray($request)
     {
+        $data = [];
+        $data['id'] = $this->id;
+        $data['name'] = $this->name;
+        $data['description'] = $this->description;
+        $data['filename'] = $this->filename;
+        $data['filesize'] = $this->filesize;
+        $data['type'] = $this->type;
+        if($this->content){
+            $data['content'] = (substr($this->content, 0, 500) . '...'); //limits the display characters
+        }
+        $data['user_id'] = $this->user_id;
+        $data['created_at'] = $this->created_at->format('d/m/Y');
+        $data['updated_at'] = $this->updated_at->format('d/m/Y');
+
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
-            'filename' => $this->filename,
-            'filesize' => $this->filesize,
-            'type' => $this->type,
-            'content' => (substr($this->content, 0, 500) . '...'), //limits the display characters
-            'user_id' => $this->user_id,
-            'created_at' => $this->created_at->format('d/m/Y'),
-            'updated_at' => $this->updated_at->format('d/m/Y'),
+            $data
         ];
     }
 }

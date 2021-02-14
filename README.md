@@ -3,7 +3,7 @@
 
 ## Using Laravel 8 With Passport and Laratrust
 
-This is a Rest API application for saving and retrieving PDF files directly into the database Mysql, encoding them with PHP's native [base64](https://www.php.net/manual/en/function.base64-encode.php) function. Using access permissions with [Laravel Laratrust](https://github.com/santigarcor/laratrust) and authentication with [Laravel Passport](https://laravel.com/docs/8.x/passport) for users.
+This is a Rest API application for saving and retrieving PDF files directly into the database Mysql, encoding them with PHP's native [base64](https://www.php.net/manual/en/function.base64-encode.php) function. Using access permissions with [Laravel Laratrust](https://github.com/santigarcor/laratrust) and authentication with [Laravel Passport](https://laravel.com/docs/8.x/passport) for users. Inserting password to access the PDF file
 
 ## Installation
 
@@ -67,7 +67,7 @@ Both users can insert files, only in .pdf format, in the database. However, the 
 
 ## Running Tests using Postman
 
-- User login:
+### User login:
 ```
 Postman configuration: 
 
@@ -81,7 +81,7 @@ Postman configuration:
 ```
 <img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/login-user.jpg">
 
-- PDF insertion:
+### PDF insertion:
 
 ```
 Postman configuration:
@@ -104,10 +104,15 @@ Postman configuration:
      
      - Key: content
      - Value: "change the field to 'file' and locate the .pdf file on your computer".
+     
+     - Key: password
+     - Value: "enter a password for the pdf".
 ```
 <img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/insert-pdf-user.jpg">
 
-- PDF view:
+### PDF view list:
+
+
 
 ```
 Postman configuration:
@@ -121,13 +126,32 @@ Postman configuration:
      - Key: Authorization
      - Value: "obtained token"
 ```
+
+<h6>Attention: Only the "admin" user can view all files. The user "user" will only see your files.
+Note that at that moment only information about the file will be displayed. The contents of the file will be protected by password and will be on another link.</h6>
+
+#### View user:
+
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-user.jpg">
+
+#### View admin:
+
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-admin.jpg    ">
+
+### PDF view detail:
+
+#### The 'user' views the contents of the pdf file using the password:
+
+- Viewing the file contents using the file password
+
 <h6>Attention: A character limiter has been inserted in the output of the "content" of the file data, for better visualization in Postman.
 It should be removed from the file: app/Http/Resources/Files.php: line 24</h6>
 
-View user:
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-user.jpg">
-View admin:
-<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/view-admin.jpg">
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/viewing-allowed-password-user.jpg">
+
+- If the user tries to view another file that does not have permission, even if he has the password, the file will not be displayed.
+
+<img src="https://imagesgithub.s3-sa-east-1.amazonaws.com/blocked-view-password-user.jpg">
 
 ## Packages used
  - Laravel 8:

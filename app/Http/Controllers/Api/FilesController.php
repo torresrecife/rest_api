@@ -34,7 +34,6 @@ class FilesController extends BaseController
             'files.type',
             'files.description',
             'files_user.user_id',
-            'files_content.content',
             'files.created_at',
             'files.updated_at'
         ]);
@@ -131,7 +130,26 @@ class FilesController extends BaseController
      */
     public function show($id)
     {
-        $files = Files::find($id);
+        $user = Auth::user();
+        $files = Files::query();
+        $files->addSelect([
+            'files.id',
+            'files.name',
+            'files.type',
+            'files.description',
+            'files.filename',
+            'files.filesize',
+            'files.created_at',
+            'files.updated_at'
+        ]);
+        $files->where('files.id',$id);
+        $files->join('files_user','files_user.file_id','=','files.id');
+        $data = $files->first();
+
+        //if the user does not have admin permission, they can only see their own files.
+        if(empty($user->hasRole('admin')) && $data->user_id != $user->id){
+            return $this->sendError('You are not allowed to view this file.');
+        }
 
         if (is_null($files)) {
             return $this->sendError('Files not found.');
@@ -142,17 +160,40 @@ class FilesController extends BaseController
 
     public function details($id, $pwd)
     {
-        $files = Files::find($id);
+        $user = Auth::user();
+        $files = Files::query();
+        $files->addSelect([
+            'files.id',
+            'files.name',
+            'files.type',
+            'files.description',
+            'files.filename',
+            'files.filesize',
+            'files_content.content',
+            'files_user.user_id',
+            'files.password',
+            'files.created_at',
+            'files.updated_at'
+        ]);
+        $files->where('files.id',$id);
+        $files->join('files_user','files_user.file_id','=','files.id');
+        $files->join('files_content','files_content.file_id','=','files.id');
+        $data = $files->first();
+
+        //if the user does not have admin permission, they can only see their own files.
+        if(empty($user->hasRole('admin')) && $data->user_id != $user->id){
+            return $this->sendError('You are not allowed to view this file.');
+        }
 
         if (is_null($files)) {
             return $this->sendError('Files not found.');
         }
 
-        if (Hash::check($pwd, $files->password)){
+        if (!Hash::check($pwd, $data->password)){
             return $this->sendError('The file password does not match.');
         }
 
-        return $this->sendResponse(new FilesResource($files), 'Files retrieved successfully.');
+        return $this->sendResponse(new FilesResource($data), 'Files retrieved successfully.');
     }
 
     /**
