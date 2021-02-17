@@ -203,7 +203,7 @@ class FilesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function detailsFile(Request $request, $id)
+    public function detailsFile($request, $id)
     {
         $pwd = $request->input('password');
         $user = Auth::user();
