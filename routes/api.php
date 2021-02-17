@@ -32,4 +32,11 @@ Route::middleware('auth:api')->group( function () {
             return $controller->callAction('details', array($id,$data));
         })
         ->name('files');
+
+    Route::post('files-details/{id}',
+        function(Request $request, $id){
+            $controller = app()->make(FilesController::class, array($request));
+            return $controller->callAction('detailsFile', array($request, $id));
+        })
+        ->name('files-details');
 });

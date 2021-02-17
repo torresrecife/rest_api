@@ -203,6 +203,52 @@ class FilesController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    public function detailsFile(Request $request, $id)
+    {
+        $pwd = $request->input('password');
+        $user = Auth::user();
+        $files = Files::query();
+        $files->addSelect([
+            'files.id',
+            'files.name',
+            'files.type',
+            'files.description',
+            'files.filename',
+            'files.filesize',
+            'files_content.content',
+            'files_user.user_id',
+            'files.password',
+            'files.created_at',
+            'files.updated_at'
+        ]);
+        $files->where('files.id',$id);
+        $files->join('files_user','files_user.file_id','=','files.id');
+        $files->join('files_content','files_content.file_id','=','files.id');
+        $data = $files->first();
+
+        //if the user does not have admin permission, they can only see their own files.
+        if(empty($user->hasRole('admin')) && $data->user_id != $user->id){
+            return $this->sendError('You are not allowed to view this file.');
+        }
+
+        if (is_null($files)) {
+            return $this->sendError('Files not found.');
+        }
+
+        if (!Hash::check($pwd, $data->password)){
+            return $this->sendError('The file password does not match.' . $pwd);
+        }
+
+        return $this->sendResponse(new FilesResource($data), 'Files retrieved successfully.');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, Files $files)
     {
         $input = $request->all();
